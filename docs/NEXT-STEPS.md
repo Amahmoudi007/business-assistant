@@ -22,7 +22,7 @@ OpenAI-compatible service. Without a key it keeps running in offline mode.
 - [ ] Check whether Parspack can stop an app without paying (look for توقف/خاموش on the rates
       app, or ask support). Creating an app starts it — and the billing — right away.
 - [ ] Your own account (top of the panel must say **Ali Mahmoudi**, not the uncle's).
-- [ ] New Node.js app from `CRYSTAL6985/business-assistant`, small size like the rates app
+- [ ] New Node.js app from `Amahmoudi007/business-assistant`, small size like the rates app
       (~100 MB RAM used locally), **1 GB disk at `/data`** — without it the database is wiped on every deploy.
 - [ ] Settings:
 
