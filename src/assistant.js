@@ -57,9 +57,12 @@ function normalizePhone(raw) {
   return /^09\d{9}$/.test(withZero) ? withZero : null;
 }
 
+// Finglish = Persian typed in Latin letters ("gheymat chande?"); customers use it a lot on phones.
+const FINGLISH_RULE = '- Customers often write Persian in Latin letters (Finglish, e.g. "salam, gheymat chande?"). '
+  + 'Understand it as Persian and reply in Persian script.';
 const LANGUAGE_RULES = {
-  fa: '- Reply in Persian.',
-  'fa,en': '- Reply in the language the customer writes in (Persian or English).',
+  fa: `- Reply in Persian (Persian script).\n${FINGLISH_RULE}`,
+  'fa,en': `- Reply in the language the customer writes in (Persian or English).\n${FINGLISH_RULE}`,
 };
 
 /**
@@ -90,7 +93,7 @@ function buildSystemPrompt(profile, products, faqs) {
     `Tone: ${profile.tone || 'friendly and polite'}.`,
     '',
     'RULES',
-    LANGUAGE_RULES[languages] ?? '- Reply in the language the customer writes in (usually Persian).',
+    LANGUAGE_RULES[languages] ?? `- Reply in the language the customer writes in (usually Persian).\n${FINGLISH_RULE}`,
     '- Keep replies short.',
     '- Use ONLY the information below. Never invent products, prices, discounts, policies or delivery times.',
     profile.fallbackMessage

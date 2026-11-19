@@ -42,6 +42,14 @@ test('prompt tells the AI to use the custom fallback when the answer is unknown'
   assert.match(plain, /say you do not know and that the shop staff will follow up/);
 });
 
+test('prompt treats Finglish as Persian and answers in Persian script', () => {
+  for (const languages of [['fa'], ['fa', 'en']]) {
+    const prompt = buildSystemPrompt({ ...defaults('Shop'), name: 'Shop', languages }, [], []);
+    assert.match(prompt, /Finglish/);
+    assert.match(prompt, /Persian script/);
+  }
+});
+
 test('offlineReply reports what it matched and uses the custom fallback', () => {
   const faqs = [{ id: 4, question: 'هزینه ارسال چقدر است؟', answer: 'رایگان' }];
   const hit = offlineReply('ارسال چقدر هزینه داره؟', [], faqs);

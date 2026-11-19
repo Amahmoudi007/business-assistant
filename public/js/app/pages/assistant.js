@@ -105,7 +105,14 @@ export async function render(main, { me, storeId }) {
   const history = [];
   const testLog = el('div', { class: 'test-log', role: 'log', 'aria-live': 'polite' },
     el('p', { class: 'subtle small', text: data.aiConnected ? 'گفتگوی آزمایشی با پیش‌نویس فعلی. چیزی ذخیره نمی‌شود و سفارشی ثبت نمی‌شود.' : 'هوش مصنوعی هنوز وصل نیست؛ پاسخ‌ها از حالت آفلاین (پایگاه دانش) است. چیزی ذخیره نمی‌شود.' }));
-  const testInput = el('input', { class: 'input', placeholder: 'مثلاً: هزینهٔ ارسال چقدر است؟', 'aria-label': 'پیام آزمایشی', maxlength: 1000 });
+  // A textarea that grows with the text, so a long message stays fully visible (an <input> hid it sideways).
+  const testInput = el('textarea', { class: 'input', rows: 1, dir: 'auto', placeholder: 'مثلاً: هزینهٔ ارسال چقدر است؟', 'aria-label': 'پیام آزمایشی', maxlength: 1000 });
+  const autosize = () => { testInput.style.height = 'auto'; testInput.style.height = `${testInput.scrollHeight}px`; };
+  testInput.addEventListener('input', autosize);
+  testInput.addEventListener('keydown', (e) => {
+    // Enter sends, Shift+Enter is a new line; never send mid-composition (Persian IME).
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); testForm.requestSubmit(); }
+  });
   const testSend = el('button', { class: 'btn btn-sm', type: 'submit', text: 'ارسال' });
   const testForm = el('form', { class: 'test-form' }, testInput, testSend);
   testForm.addEventListener('submit', async (e) => {
@@ -117,6 +124,7 @@ export async function render(main, { me, storeId }) {
         if (dirty()) await save({ quiet: true });
         testLog.append(el('div', { class: 'test-msg user', text: message }));
         testInput.value = '';
+        autosize();
         const res = await api('POST', `/api/app/assistant/${data.storeId}/test`, { history, message });
         history.push({ role: 'user', content: message }, { role: 'assistant', content: res.reply });
         testLog.append(el('div', { class: 'test-msg bot' }, el('span', { class: 'pill', text: res.source === 'ai' ? 'AI' : 'آفلاین' }), el('div', {}, bidiText(res.reply)), explain(res.context)));

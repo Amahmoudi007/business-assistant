@@ -34,7 +34,8 @@
 .test-msg.bot { align-self: flex-end; display: grid; gap: 4px; background: var(--accent-soft); border-start-end-radius: var(--r-sm); }
 .test-msg.bot .pill { justify-self: start; }
 .test-form { display: flex; gap: var(--s-2); }
-.test-form .input { flex: 1; min-width: 0; }
+.test-form { align-items: flex-end; }
+.test-form .input { flex: 1; min-width: 0; resize: none; min-height: 40px; max-height: 160px; line-height: 1.7; overflow-y: auto; }
 
 /* "What was this reply based on?" — shared by the test chat and the inbox. */
 .explain { font-size: var(--t-xs); color: var(--ink-3); white-space: normal; }
