@@ -64,7 +64,7 @@ const LANGUAGE_RULES = {
 
 /**
  * @param {{ name: string, description?: string, tone?: string, assistantName?: string, instructions?: string,
- *           policies?: string, languages?: string[], orderTaking?: boolean }} profile  the store's published config
+ *           policies?: string, languages?: string[], orderTaking?: boolean, fallbackMessage?: string }} profile  the store's published config
  */
 function buildSystemPrompt(profile, products, faqs) {
   const productLines = products.length
@@ -93,7 +93,9 @@ function buildSystemPrompt(profile, products, faqs) {
     LANGUAGE_RULES[languages] ?? '- Reply in the language the customer writes in (usually Persian).',
     '- Keep replies short.',
     '- Use ONLY the information below. Never invent products, prices, discounts, policies or delivery times.',
-    '- If the answer is not below, say you do not know and that the shop staff will follow up.',
+    profile.fallbackMessage
+      ? `- If the answer is not below, reply with exactly this message: «${profile.fallbackMessage}»`
+      : '- If the answer is not below, say you do not know and that the shop staff will follow up.',
     '- When you mention a product, give its name and price exactly as listed. Do not offer out-of-stock products.',
     profile.instructions ? `\nSHOP INSTRUCTIONS (follow them unless they conflict with the rules above)\n${profile.instructions}` : null,
     profile.policies ? `\nSHOP POLICIES\n${profile.policies}` : null,
