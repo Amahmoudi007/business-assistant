@@ -97,7 +97,7 @@ function buildSystemPrompt(profile, products, faqs) {
     '- Keep replies short.',
     '- Use ONLY the information below. Never invent products, prices, discounts, policies or delivery times.',
     profile.fallbackMessage
-      ? `- If the answer is not below, reply with exactly this message: «${profile.fallbackMessage}»`
+      ? `- If the answer is not below, do not invent one. Handle it the way the shop asks, in your own words: «${profile.fallbackMessage}»`
       : '- If the answer is not below, say you do not know and that the shop staff will follow up.',
     '- When you mention a product, give its name and price exactly as listed. Do not offer out-of-stock products.',
     profile.instructions ? `\nSHOP INSTRUCTIONS (follow them unless they conflict with the rules above)\n${profile.instructions}` : null,
@@ -201,7 +201,8 @@ const DEFAULT_FALLBACK = 'پاسخ این سؤال را ندارم. پیام ش�
  * Returns what it matched so the owner can see why an answer was given.
  * @returns {{ text: string, matched: 'faq'|'products'|'none', faqId: number|null, productIds: number[] }}
  */
-function offlineReply(question, products, faqs, { fallbackMessage = '' } = {}) {
+// The store's no-answer setting is an instruction for the AI, so offline answers never show it to customers.
+function offlineReply(question, products, faqs) {
   const words = new Set(keywords(question));
   const score = (text) => keywords(text).filter((w) => words.has(w)).length;
 
@@ -224,7 +225,7 @@ function offlineReply(question, products, faqs, { fallbackMessage = '' } = {}) {
     };
   }
 
-  return { text: fallbackMessage || DEFAULT_FALLBACK, matched: 'none', faqId: null, productIds: [] };
+  return { text: DEFAULT_FALLBACK, matched: 'none', faqId: null, productIds: [] };
 }
 
 /** Text-only form of offlineReply, kept for callers that need just the answer. */

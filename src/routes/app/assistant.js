@@ -86,7 +86,7 @@ function assistantRoutes(db, ask) {
         console.error(`[assistant-test] AI call failed for ${store.slug}:`, err.message);
       }
     }
-    const offline = offlineReply(message, products, faqs, profile);
+    const offline = offlineReply(message, products, faqs);
     const faq = offline.faqId ? faqs.find((f) => f.id === offline.faqId) : null;
     res.json({ reply: offline.text, source: 'offline', context: { mode: 'offline', matched: offline.matched, faqId: offline.faqId, faqQuestion: faq?.question ?? null, productIds: offline.productIds } });
   }));

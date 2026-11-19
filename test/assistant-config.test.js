@@ -35,9 +35,12 @@ test('prompt carries instructions and policies; order section only when order ta
   assert.match(off, /Do not take orders/);
 });
 
-test('prompt tells the AI to use the custom fallback when the answer is unknown', () => {
-  const profile = { ...defaults('Shop'), name: 'Shop', fallbackMessage: 'با ۰۲۱۱۲۳۴ تماس بگیرید' };
-  assert.match(buildSystemPrompt(profile, [], []), /با ۰۲۱۱۲۳۴ تماس بگیرید/);
+test('prompt gives the no-answer setting to the AI as an instruction, not a script', () => {
+  const profile = { ...defaults('Shop'), name: 'Shop', fallbackMessage: 'مؤدبانه بگو با پشتیبانی تماس بگیرند' };
+  const prompt = buildSystemPrompt(profile, [], []);
+  assert.match(prompt, /مؤدبانه بگو با پشتیبانی تماس بگیرند/);
+  assert.match(prompt, /in your own words/);
+  assert.doesNotMatch(prompt, /exactly this message/);
   const plain = buildSystemPrompt({ ...profile, fallbackMessage: '' }, [], []);
   assert.match(plain, /say you do not know and that the shop staff will follow up/);
 });
@@ -50,13 +53,13 @@ test('prompt treats Finglish as Persian and answers in Persian script', () => {
   }
 });
 
-test('offlineReply reports what it matched and uses the custom fallback', () => {
+test('offlineReply reports what it matched and never shows the AI instruction to customers', () => {
   const faqs = [{ id: 4, question: 'هزینه ارسال چقدر است؟', answer: 'رایگان' }];
   const hit = offlineReply('ارسال چقدر هزینه داره؟', [], faqs);
   assert.deepEqual({ text: hit.text, matched: hit.matched, faqId: hit.faqId }, { text: 'رایگان', matched: 'faq', faqId: 4 });
   const miss = offlineReply('ساعت کاری؟', [], faqs, { fallbackMessage: 'با ۰۲۱۱۲۳۴ تماس بگیرید' });
   assert.equal(miss.matched, 'none');
-  assert.equal(miss.text, 'با ۰۲۱۱۲۳۴ تماس بگیرید');
+  assert.match(miss.text, /پاسخ این سؤال را ندارم/);
 });
 
 test('draft is private until published; discard restores the published config', async (t) => {

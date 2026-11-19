@@ -123,7 +123,7 @@ async function handleMessage(db, ask, store, conversationId, message, outbound =
   }
 
   if (!reply) {
-    const offline = offlineReply(message, products, faqs, store.config);
+    const offline = offlineReply(message, products, faqs);
     reply = offline.text;
     source = 'offline';
     const faq = offline.faqId ? faqs.find((f) => f.id === offline.faqId) : null;
