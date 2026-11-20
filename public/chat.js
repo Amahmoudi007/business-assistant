@@ -6,6 +6,7 @@ const log = document.getElementById('log');
 const form = document.getElementById('composer');
 const input = document.getElementById('input');
 const sendButton = document.getElementById('send');
+sendButton.addEventListener('animationend', () => sendButton.classList.remove('flying'));
 const counter = document.getElementById('counter');
 const suggestions = document.getElementById('suggestions');
 
@@ -134,6 +135,7 @@ async function loadHistory() {
 async function send(text, { echo = true } = {}) {
   if (sending) return;
   sending = true;
+  sendButton.classList.add('flying');
   updateSendState();
   setSuggestionsVisible(false);
   if (echo) addMessage('user', text);

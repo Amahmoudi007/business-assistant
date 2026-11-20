@@ -17,7 +17,7 @@ function productFields(me, storeId, categories) {
   ];
 }
 
-export async function render(main, { me, storeId }) {
+export async function render(main, { me, route, storeId }) {
   const storeQuery = storeId ? `?store=${storeId}` : '';
   const categories = await get(`/api/app/products/categories${storeQuery}`).catch(() => []);
 
@@ -68,4 +68,10 @@ export async function render(main, { me, storeId }) {
   });
   main.replaceChildren(pageHead('محصولات', 'آنچه دستیار به مشتری معرفی می‌کند — قیمت و موجودی همیشه از همین‌جا خوانده می‌شود.',
     el('button', { class: 'btn', type: 'button', onclick: () => edit(null) }, icon('plus', 'icon icon-sm'), 'محصول جدید')), view.node);
+  if (route.params.has('new')) { // deep link from the ⌘K palette; drop the flag so reload/back don't reopen it
+    const url = new URL(location.href);
+    url.searchParams.delete('new');
+    history.replaceState(null, '', url.pathname + url.search);
+    edit(null);
+  }
 }

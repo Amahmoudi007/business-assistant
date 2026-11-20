@@ -276,7 +276,12 @@ dialog .form-actions { justify-content: flex-end; padding: 0 24px 20px; }
 /* ============================================================
    Chat page
    ============================================================ */
-.chat-page { background: var(--bg); }
+.chat-page {
+  background:
+    radial-gradient(40rem 28rem at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 65%),
+    radial-gradient(36rem 26rem at 0% 100%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 65%),
+    var(--bg);
+}
 .chat {
   display: flex; flex-direction: column;
   height: 100dvh; max-width: 760px; margin: 0 auto; position: relative;
@@ -316,7 +321,9 @@ dialog .form-actions { justify-content: flex-end; padding: 0 24px 20px; }
   border-start-start-radius: 6px;
 }
 .msg.assistant {
-  align-self: flex-end; background: var(--bubble-bot); color: var(--ink);
+  align-self: flex-end; color: var(--ink);
+  background: color-mix(in srgb, var(--bubble-bot) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--line); box-shadow: var(--shadow-1);
   border-start-end-radius: 6px;
 }
@@ -343,7 +350,6 @@ dialog .form-actions { justify-content: flex-end; padding: 0 24px 20px; }
 
 .composer-wrap {
   padding: 8px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--bg) 70%, transparent);
 }
 .suggestions {
   display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 10px;
@@ -361,7 +367,8 @@ dialog .form-actions { justify-content: flex-end; padding: 0 24px 20px; }
 .composer {
   display: flex; align-items: flex-end; gap: 8px;
   padding: 6px; padding-inline-start: 16px;
-  background: var(--surface); border: 1px solid var(--line-strong); border-radius: 26px;
+  background: var(--surface-glass); border: 1px solid var(--line-strong); border-radius: 26px;
+  backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
   box-shadow: var(--shadow-1);
   transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
@@ -372,6 +379,16 @@ dialog .form-actions { justify-content: flex-end; padding: 0 24px 20px; }
 }
 .composer textarea:focus-visible { outline: none; }
 .composer .btn { flex: none; }
+/* send: on hover the paper plane flies off and comes back around; .flying plays it once per send (touch has no hover) */
+#send { overflow: hidden; }
+#send:not(:disabled):hover .icon, #send.flying .icon { animation: fly 1.2s var(--ease-out) infinite; }
+#send.flying .icon { animation-iteration-count: 1; }
+@keyframes fly { /* `translate` composes with .flip's transform, so the plane keeps pointing forward in RTL */
+  0% { translate: 0 0; opacity: 1; }
+  38% { translate: -24px -24px; opacity: 0; }
+  39% { translate: 20px 20px; opacity: 0; }
+  75%, 100% { translate: 0 0; opacity: 1; }
+}
 .counter { font-size: var(--text-xs); color: var(--ink-3); align-self: center; }
 .chat-foot { text-align: center; font-size: var(--text-xs); color: var(--ink-3); margin-top: 8px; }
 
@@ -540,7 +557,8 @@ details.convo[open] summary { border-bottom: 1px solid var(--line); }
   .typing span { animation: none; opacity: 0.6; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .chat-header, .topbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .chat-header, .topbar, .composer { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .msg.assistant { background: var(--bubble-bot); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
   :root { --line: rgba(0, 0, 0, 0.35); --line-strong: rgba(0, 0, 0, 0.6); --ink-2: var(--ink); --ink-3: var(--ink); }

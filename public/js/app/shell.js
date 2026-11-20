@@ -3,6 +3,7 @@
 import { href, navigate, currentRoute } from './router.js';
 import { toggleMenu, menuItem, menuLabel, menuSep, closeMenu } from './menu.js';
 import { api } from './api.js';
+import { togglePalette } from './palette.js';
 
 export const NAV = [
   { label: 'عمومی', items: [
@@ -95,32 +96,15 @@ function storeSwitcher(me, route) {
   return el('div', { class: 'menu-anchor' }, button);
 }
 
-/** Search box: filters sections and stores (global record search arrives with the data pages). */
-function searchBox(me) {
-  const input = el('input', { class: 'input', type: 'search', placeholder: 'جستجو…', 'aria-label': 'جستجو در بخش‌ها و فروشگاه‌ها', autocomplete: 'off' });
-  const wrap = el('div', { class: 'search menu-anchor', role: 'search' }, icon('search', 'icon icon-sm'), input, el('kbd', { text: 'Ctrl K' }));
-  const show = () => {
-    wrap.querySelector('.menu')?.remove();
-    const q = input.value.trim();
-    if (!q) return;
-    const sections = NAV.flatMap((g) => g.items).filter((i) => i.label.includes(q));
-    const stores = me.stores.filter((s) => s.name.includes(q) || s.slug.includes(q.toLowerCase()));
-    const items = [
-      ...sections.map((i) => menuItem({ label: i.label, iconName: i.icon, href: href(`/app/${i.id === 'overview' ? '' : i.id}`.replace(/\/$/, '')) })),
-      ...stores.map((s) => menuItem({ label: s.name, iconName: 'store', href: href('/app', { store: s.id }) })),
-    ];
-    wrap.append(el('div', { class: 'menu search-results', role: 'menu' }, ...(items.length ? items : [el('div', { class: 'menu-label', text: 'نتیجه‌ای پیدا نشد' })])));
-  };
-  input.addEventListener('input', show);
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { input.value = ''; show(); }
-    if (e.key === 'ArrowDown') { e.preventDefault(); wrap.querySelector('.menu-item')?.focus(); }
-  });
-  input.addEventListener('blur', () => setTimeout(() => { if (!wrap.contains(document.activeElement)) wrap.querySelector('.menu')?.remove(); }, 150));
-  return wrap;
+/** Compact search trigger: opens the ⌘K quick-actions palette (sections, stores, common actions). */
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
+let shellMe = null;
+function searchButton(me) {
+  return el('button', { class: 'search-trigger', type: 'button', 'aria-label': 'جستجو و کارهای سریع', 'aria-keyshortcuts': 'Control+K Meta+K', onclick: () => togglePalette(me) },
+    icon('search', 'icon icon-sm'), el('span', { class: 'label', text: 'جستجو' }), el('kbd', { text: IS_MAC ? '⌘K' : 'Ctrl K' }));
 }
 document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); document.querySelector('.search input')?.focus(); }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && shellMe) { e.preventDefault(); togglePalette(shellMe); }
 });
 
 function bell(me) {
@@ -163,10 +147,11 @@ function profile(me) {
 
 export function renderShell(me) {
   closeMenu({ restoreFocus: false });
+  shellMe = me;
   const route = currentRoute();
   renderSidebar(me, route);
   const toggle = el('button', { class: 'round-btn menu-toggle', type: 'button', 'aria-label': 'باز کردن منو', 'aria-controls': 'sidebar', onclick: () => setDrawer(true) }, icon('menu'));
-  document.getElementById('topbar').replaceChildren(toggle, storeSwitcher(me, route), searchBox(me), bell(me), themeButton(), profile(me));
+  document.getElementById('topbar').replaceChildren(toggle, storeSwitcher(me, route), searchButton(me), bell(me), themeButton(), profile(me));
   // Suspension is the operator's decision; the owner must see it on every page, with what it means.
   document.getElementById('notice').replaceChildren(me.workspace.status === 'suspended'
     ? el('div', { class: 'notice-danger', role: 'alert' }, icon('alert', 'icon icon-sm'),

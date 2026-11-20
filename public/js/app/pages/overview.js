@@ -204,10 +204,22 @@ function activityCard(storeId, showStore) {
     });
   }
   moreBtn.addEventListener('click', () => load(false));
-  load(true);
-  return el('section', { class: 'card activity', 'aria-labelledby': 'act-title' },
-    el('div', { class: 'card-head' }, el('h2', { id: 'act-title', text: 'فعالیت اخیر' }), filters),
-    list, status, el('div', { class: 'activity-more' }, moreBtn));
+  // Folded by default: history is the least urgent thing on the page. Loads on first open.
+  const fold = el('details', { class: 'card activity fold' },
+    el('summary', { class: 'card-head' }, el('h2', { id: 'act-title', text: 'فعالیت اخیر' }), icon('chevron-down', 'icon fold-chevron')),
+    el('div', { class: 'fold-tools' }, filters), list, status, el('div', { class: 'activity-more' }, moreBtn));
+  fold.addEventListener('toggle', () => { if (fold.open && !list.children.length) load(true); });
+  return fold;
+}
+
+/** Primary action whose label turns into the payoff on hover/focus (new orders waiting), when there is one. */
+function reviewOrdersButton(me) {
+  const n = me.counts.newOrders;
+  if (!n) return null;
+  const payoff = `${fa(n)} سفارش منتظر بررسی`;
+  return el('a', { class: 'btn cta-swap', href: href('/app/orders'), 'data-link': '', 'aria-label': `بررسی سفارش‌ها، ${payoff}` },
+    icon('bag', 'icon icon-sm'),
+    el('span', { class: 'swap', 'aria-hidden': 'true' }, el('span', { text: 'بررسی سفارش‌ها' }), el('span', { text: payoff })));
 }
 
 function placeThumb(seg) {
@@ -228,7 +240,7 @@ function skeleton() {
     el('div', { class: 'stores-grid', style: 'margin-top:40px' }, ...Array.from({ length: 3 }, () => el('div', { class: 'card', style: 'height:190px' }))));
 }
 
-export async function render(main, { route, storeId }) {
+export async function render(main, { me, route, storeId }) {
   const query = new URLSearchParams();
   const range = route.params.get('range') || '7d';
   query.set('range', range);
@@ -262,7 +274,7 @@ export async function render(main, { route, storeId }) {
 
   const head = el('div', { class: 'page-head' },
     el('div', {}, el('h1', { text: 'نمای کلی فضای کاری' }), el('p', { text: 'وضعیت عملکرد فروشگاه‌ها و دستیارهای هوشمند شما' })),
-    el('div', { class: 'page-actions' }, seg, refresh, custom));
+    el('div', { class: 'page-actions' }, reviewOrdersButton(me), seg, refresh, custom));
   const body = el('div', { class: 'overview-body' }, skeleton());
   main.replaceChildren(head, body);
   requestAnimationFrame(() => placeThumb(seg));
@@ -271,9 +283,10 @@ export async function render(main, { route, storeId }) {
     try {
       const data = await get(`/api/app/overview?${query}`);
       body.replaceChildren(
+        attentionCard(data.attention),
         metricsSection(data),
         storesSection(data, storeId),
-        el('div', { class: 'overview-bottom' }, attentionCard(data.attention), activityCard(storeId, !storeId)));
+        activityCard(storeId, !storeId));
     } catch (err) {
       body.replaceChildren(el('div', { class: 'card empty' }, icon('alert'), el('strong', { text: 'اطلاعات بارگذاری نشد' }), el('p', { text: err.message }),
         el('button', { class: 'btn btn-secondary', type: 'button', text: 'تلاش دوباره', onclick: load })));

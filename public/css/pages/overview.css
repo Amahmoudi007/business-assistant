@@ -32,8 +32,29 @@
 .store-facts b { color: var(--ink); }
 .store-foot { margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--sep); }
 
-.overview-bottom { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: var(--s-4); align-items: start; }
-.attention .empty { padding-block: var(--s-8); }
+/* nothing to do: one quiet line instead of a big empty state at the top of the page */
+.attention:has(.attention-ok) { display: flex; align-items: center; flex-wrap: wrap; }
+.attention:has(.attention-ok) .card-head { padding-block: var(--s-4); }
+.attention-ok { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-4) var(--s-6); }
+.attention-ok .icon { width: 18px; height: 18px; }
+.attention-ok strong { font-size: var(--t-md); }
+
+/* folded history */
+.fold > summary { list-style: none; cursor: pointer; padding-block: var(--s-5); border-radius: var(--r-lg); }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover h2 { color: var(--ink); }
+.fold > summary h2 { color: var(--ink-2); transition: color var(--dur-fast); }
+.fold-chevron { color: var(--ink-3); transition: transform var(--dur) var(--ease); }
+.fold[open] > summary { padding-bottom: var(--s-2); }
+.fold[open] .fold-chevron { transform: rotate(180deg); }
+.fold-tools { padding: 0 var(--s-6) var(--s-2); }
+
+/* primary action: the label slides to the payoff on hover/focus; both labels share one grid cell so width never jumps */
+.cta-swap .swap { display: inline-grid; overflow: hidden; }
+.cta-swap .swap > span { grid-area: 1 / 1; transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); }
+.cta-swap .swap > span + span { transform: translateY(110%); opacity: 0; }
+.cta-swap:hover .swap > span:first-child, .cta-swap:focus-visible .swap > span:first-child { transform: translateY(-110%); opacity: 0; }
+.cta-swap:hover .swap > span + span, .cta-swap:focus-visible .swap > span + span { transform: none; opacity: 1; }
 .attention-ok .icon { color: var(--success); }
 .attention-row .row-sub { white-space: normal; }
 .seg-sm button { padding: 3px var(--s-3); font-size: var(--t-xs); }
@@ -47,7 +68,6 @@
 
 @media (max-width: 1279px) {
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .overview-bottom { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 767px) {
   .metrics { gap: var(--s-3); }
