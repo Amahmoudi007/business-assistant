@@ -43,7 +43,6 @@ function scrollToEnd(force) {
 function metaFor(source, orderId) {
   if (source === 'staff') return [icon('message', 'icon icon-sm'), el('span', { text: 'پشتیبان فروشگاه' })];
   if (orderId) return el('span', { class: 'badge badge-success', text: `سفارش ${faNumber(orderId)} ثبت شد` });
-  if (source === 'offline') return [icon('wifi-off', 'icon icon-sm'), el('span', { text: 'پاسخ خودکار از سؤالات متداول' })];
   return null;
 }
 
